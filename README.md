@@ -23,7 +23,7 @@ your Astucia Wiki project root
 
 Bonus fixes: file tree no longer collapses expanded folders on refresh; tab edit state survives switching; admins can delete a Space and reveal a file in the OS file manager (Windows / macOS / Linux).
 
-![Chinese UI](screenshots/browse-zh.png)
+![Main UI — sidebar tabs (Tree / Search / Recent), file tree, viewer, plugin tabs at top](screenshots/browse.png)
 
 **Full 8-language localization**: en / zh / hi / da / sv / es / fr / de, **7800+ keys** total
 (zh 994 · hi 1001 · de 781 · ...). Every visible UI string — sidebar tabs, search box,
@@ -33,7 +33,7 @@ Coverage:
   sidebar tabs, admin pane groups, every modal title, share / chat / AI-clone dialogs
 - 43 modules (admin / chat / list / toc / ...) shipped as whole files with their R10 i18n deltas
 
-![Sidebar tabs + admin groups in Chinese](screenshots/admin-zh.png)
+![Admin panel — group tabs (Users / AI / Monitoring / Content) translated to the active language](screenshots/admin.png)
 
 **Operation audit log**: reuses the project's built-in `write_access_log`. Adds calls in
 11 critical success branches: FILE_UPDATE / FILE_CREATE / FILE_DELETE / FOLDER_CREATE /
@@ -87,7 +87,7 @@ bash installer/uninstall.sh /var/www/astucia-wiki
 Restores every patched / replaced file from `plugins-backup/` and removes the 4
 plugin directories.
 
-![Language dropdown](screenshots/lang-dropdown.png)
+![Language picker — 8 languages with one click](screenshots/lang-dropdown.png)
 
 ## Manual install (when the script reports `needs-manual`)
 
@@ -115,14 +115,14 @@ astucia-wiki-plugins/
 │   ├── install.sh           # install (backup + copy + patch, idempotent)
 │   └── uninstall.sh         # uninstall (restore from backup)
 └── screenshots/             # proof-of-work screenshots
-    ├── browse-zh.png        # Chinese UI (sidebar tabs / page content)
-    ├── browse-en.png        # English UI
-    ├── editing-zh.png       # edit mode (italic tab + unsaved dot)
-    ├── admin-zh.png         # admin pane groups translated
-    └── lang-dropdown.png    # 8-language picker
+    ├── browse.png            # main UI: sidebar tabs / file tree / viewer / plugin tabs
+    ├── editing.png           # edit mode: italic tab + unsaved dot
+    ├── context-menu.png      # file right-click context menu
+    ├── admin.png             # admin panel: group tabs translated
+    └── lang-dropdown.png     # language picker: 8 languages
 ```
 
-![Editing mode — italic tab name + unsaved dot](screenshots/editing-zh.png)
+![Edit mode — active tab name becomes italic, unsaved dot appears](screenshots/editing.png)
 
 ## Compatibility notes
 
@@ -139,7 +139,7 @@ astucia-wiki-plugins/
   marker blocks cleanly undoes everything. See the per-plugin header comments for
   the manual removal recipe.
 
-![English UI](screenshots/browse-en.png)
+![File right-click context menu — open in new tab / duplicate / move / rename / Backlinks / delete / reveal](screenshots/context-menu.png)
 
 ## Verify the install
 
