@@ -23,7 +23,7 @@ your Astucia Wiki project root
 
 Bonus fixes: file tree no longer collapses expanded folders on refresh; tab edit state survives switching; admins can delete a Space and reveal a file in the OS file manager (Windows / macOS / Linux).
 
-![Main UI — sidebar tabs (Tree / Search / Recent), file tree, viewer, plugin tabs at top](screenshots/browse.png)
+![Multiple tabs at once — one being edited (italic + dot), others previewed](screenshots/tabs-multi.png)
 
 **Full 8-language localization**: en / zh / hi / da / sv / es / fr / de, **7800+ keys** total
 (zh 994 · hi 1001 · de 781 · ...). Every visible UI string — sidebar tabs, search box,
@@ -33,7 +33,7 @@ Coverage:
   sidebar tabs, admin pane groups, every modal title, share / chat / AI-clone dialogs
 - 43 modules (admin / chat / list / toc / ...) shipped as whole files with their R10 i18n deltas
 
-![Admin panel — group tabs (Users / AI / Monitoring / Content) translated to the active language](screenshots/admin.png)
+![Admin panel — group tabs (Users / AI / Monitoring / Content) translated to the active language](screenshots/i18n-admin.png)
 
 **Operation audit log**: reuses the project's built-in `write_access_log`. Adds calls in
 11 critical success branches: FILE_UPDATE / FILE_CREATE / FILE_DELETE / FOLDER_CREATE /
@@ -114,15 +114,15 @@ astucia-wiki-plugins/
 ├── installer/
 │   ├── install.sh           # install (backup + copy + patch, idempotent)
 │   └── uninstall.sh         # uninstall (restore from backup)
-└── screenshots/             # proof-of-work screenshots
-    ├── browse.png            # main UI: sidebar tabs / file tree / viewer / plugin tabs
-    ├── editing.png           # edit mode: italic tab + unsaved dot
-    ├── context-menu.png      # file right-click context menu
-    ├── admin.png             # admin panel: group tabs translated
+└── screenshots/             # proof-of-work screenshots (Chinese UI — localization in action)
+    ├── tabs-multi.png        # multiple tabs: one being edited (italic + dot), others previewed
+    ├── ctx-menu.png          # file right-click context menu
+    ├── i18n-zh.png           # full Chinese UI (sidebar tabs / buttons / footer all translated)
+    ├── i18n-admin.png        # admin panel: group tabs (Users/AI/Monitoring/Content) in Chinese
     └── lang-dropdown.png     # language picker: 8 languages
 ```
 
-![Edit mode — active tab name becomes italic, unsaved dot appears](screenshots/editing.png)
+![Edit mode — active tab name becomes italic, unsaved dot appears](screenshots/tabs-multi.png)
 
 ## Compatibility notes
 
@@ -139,7 +139,7 @@ astucia-wiki-plugins/
   marker blocks cleanly undoes everything. See the per-plugin header comments for
   the manual removal recipe.
 
-![File right-click context menu — open in new tab / duplicate / move / rename / Backlinks / delete / reveal](screenshots/context-menu.png)
+![File right-click context menu — open in new tab / duplicate / move / rename / Backlinks / delete / reveal](screenshots/ctx-menu.png)
 
 ## Verify the install
 

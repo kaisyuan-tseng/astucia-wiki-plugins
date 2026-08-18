@@ -24,7 +24,7 @@
 附带的基础修复：文件树刷新不再收起已展开的目录；Tab 编辑状态跨标签切换完整恢复；
 管理员可删除 Space、在文件管理器中显示文件（Windows/macOS/Linux）。
 
-![主界面（英文 UI）：侧边栏标签、文件树、内容、顶部插件 tabs](screenshots/browse.png)
+![多标签页：一个编辑中（斜体 + 未保存圆点），其余预览](screenshots/tabs-multi.png)
 
 **8 语言全量本地化**：en/zh/hi/da/sv/es/fr/de 共 **7800+ key**（zh 994、hi 1001、de 781…）。
 侧边栏 / 搜索 / TOC / 面板标题 / 编辑 / 历史 / 管理 / 偏好设置 / 各弹窗 等 UI 字符串切换语言即时生效。
@@ -33,7 +33,7 @@
   admin 分组"用户/AI/监控/内容"、各 modal 标题等——此前这些是遗漏点）
 - 43 个模块级 i18n 改动（admin/chat/list/toc/...）以 Tier 2 整体替换方式打包
 
-![Admin 面板：分组标签（Users / AI / Monitoring / Content）跟随语言切换](screenshots/admin.png)
+![Admin 面板：分组标签（Users / AI / Monitoring / Content）跟随语言切换](screenshots/i18n-admin.png)
 
 **操作日志审计**：复用项目自带的 `write_access_log`，在 11 类关键动作的成功分支
 插入审计调用：FILE_UPDATE / FILE_CREATE / FILE_DELETE / FOLDER_CREATE / FOLDER_DELETE /
@@ -49,7 +49,7 @@ SPACE_CREATE / SPACE_RENAME / SPACE_DELETE / FILE_REVEAL。日志格式
 > TOC 面板（Contents / 目录 / Inhalt）全部正确翻译；
 > 11 类审计事件全部触发并写入日志，零页面错误。
 
-![文件右键菜单：在新标签页打开 / 复制 / 移动 / 重命名 / 反向链接 / 删除 / 在文件管理器中显示](screenshots/context-menu.png)
+![文件右键菜单：在新标签页打开 / 复制 / 移动 / 重命名 / 反向链接 / 删除 / 在文件管理器中显示](screenshots/ctx-menu.png)
 > 语言切换实测 en / zh / de：搜索框（Search pages… / 搜索页面… / Seiten suchen…）、
 > TOC 面板（Contents / 目录 / Inhalt）全部正确翻译；
 > 11 类审计事件全部触发并写入日志，零页面错误。
@@ -115,11 +115,11 @@ astucia-wiki-plugins/
 ├── installer/
 │   ├── install.sh           # 安装（备份+复制+打补丁，幂等）
 │   └── uninstall.sh         # 卸载（从备份恢复）
-└── screenshots/             # 实测截图
-    ├── browse.png            # 主界面（英文 UI）：侧边栏 / 文件树 / 内容 / 顶部 tabs
-    ├── editing.png           # 编辑模式：斜体 tab + 未保存圆点
-    ├── context-menu.png      # 文件右键菜单
-    ├── admin.png             # Admin 面板：分组标签跟随语言
+└── screenshots/             # 实测截图（中文 UI 展示本地化）
+    ├── tabs-multi.png        # 多标签页：一个编辑中（斜体+圆点），其余预览
+    ├── ctx-menu.png          # 文件右键菜单
+    ├── i18n-zh.png           # 全中文 UI（侧边栏/按钮/底部全部翻译）
+    ├── i18n-admin.png        # Admin 面板：分组标签中文
     └── lang-dropdown.png     # 语言下拉：8 种语言
 ```
 
@@ -149,4 +149,4 @@ astucia-wiki-plugins/
 
 如果 2–3 步异常，多半是浏览器缓存，强制刷新后重试。
 
-![编辑模式：当前 tab 名变斜体、出现未保存圆点](screenshots/editing.png)
+![编辑模式：当前 tab 名变斜体、出现未保存圆点（多标签页中突出显示）](screenshots/tabs-multi.png)
