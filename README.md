@@ -118,7 +118,6 @@ astucia-wiki-plugins/
     ├── browse-zh.png        # Chinese UI (sidebar tabs / page content)
     ├── browse-en.png        # English UI
     ├── editing-zh.png       # edit mode (italic tab + unsaved dot)
-    ├── panetabs-zh.png      # sidebar pane tabs translated
     ├── admin-zh.png         # admin pane groups translated
     └── lang-dropdown.png    # 8-language picker
 ```

@@ -119,7 +119,6 @@ astucia-wiki-plugins/
     ├── browse-zh.png        # 中文主界面
     ├── browse-en.png        # 英文主界面
     ├── editing-zh.png       # 编辑模式（斜体 tab + 未保存圆点）
-    ├── panetabs-zh.png      # 侧边栏 pane-tab 中文
     ├── admin-zh.png         # admin 分组中文
     └── lang-dropdown.png    # 8 语言下拉
 ```
