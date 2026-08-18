@@ -1,0 +1,3 @@
+        // === local plugins: tabs (no start page → no active tab) ===
+        resetTabs();
+        // === end local plugins ===

@@ -1,0 +1,21 @@
+        // === local plugins: mime fallback ===
+        // mime_content_type() needs the fileinfo extension, which is not always
+        // loaded; fall back to a small extension map so inline previews
+        // (images / PDFs) still work on such hosts.
+        $mime = function_exists('mime_content_type')
+            ? (mime_content_type($real_file_path) ?: 'application/octet-stream')
+            : 'application/octet-stream';
+        if ($mime === 'application/octet-stream') {
+            $ext_mime = [
+                'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif', 'webp' => 'image/webp', 'svg' => 'image/svg+xml',
+                'bmp' => 'image/bmp', 'avif' => 'image/avif', 'ico' => 'image/x-icon',
+                'pdf' => 'application/pdf', 'txt' => 'text/plain', 'md' => 'text/markdown',
+                'html' => 'text/html', 'css' => 'text/css', 'js' => 'text/javascript',
+                'json' => 'application/json', 'csv' => 'text/csv',
+            ];
+            $ext = strtolower(pathinfo($real_file_path, PATHINFO_EXTENSION));
+            if (isset($ext_mime[$ext])) $mime = $ext_mime[$ext];
+        }
+        header('Content-Type: ' . $mime);
+        // === end local plugins ===

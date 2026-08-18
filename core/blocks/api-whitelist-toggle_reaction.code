@@ -1,0 +1,5 @@
+                      // === local plugins: reader write-access audit ===
+                      // toggle_reaction mutates a .chat file (reactions), so it must follow the
+                      // same reader-gate as post_chat_message rather than being public.
+                      'toggle_reaction',
+                      // === end local plugins ===

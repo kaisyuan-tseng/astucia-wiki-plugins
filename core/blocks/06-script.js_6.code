@@ -1,0 +1,3 @@
+        // === local plugins: tabs (open via tab manager so cached tabs restore) ===
+        await openInTab(result.path, pageId, item?.tags || []);
+        // === end local plugins ===

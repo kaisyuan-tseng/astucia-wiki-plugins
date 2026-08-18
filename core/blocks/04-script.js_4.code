@@ -1,0 +1,3 @@
+    // === local plugins: tabs (route tree clicks through the tab manager) ===
+    initFileTree({ onLoadPage: openInTab, onGenerateTagCloud: generateTagCloud });
+    // === end local plugins ===

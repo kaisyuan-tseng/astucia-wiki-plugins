@@ -1,0 +1,26 @@
+/* === local plugins: tabs === */
+/* R8: the bar has a FIXED height so the layout never jumps between "no tabs"
+   (just "+"), one tab, and fifty tabs. Tabs live in an inner scroll strip;
+   "+" is pinned to the right and always reachable. */
+.wiki-tabs { display: flex; align-items: stretch; height: 34px; min-height: 34px; padding: 0 0 0 0.5rem; background: var(--bg-sidebar, #f7fafc); border-bottom: 1px solid var(--border-color); overflow: hidden; }
+.wiki-tabs:empty { display: none; }
+.wiki-tabs-scroll { display: flex; align-items: stretch; gap: 1px; flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.wiki-tab { display: flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; max-width: 180px; flex: 0 0 auto; cursor: pointer; border-right: 1px solid var(--border-color); color: var(--accent-gray); font-size: 0.82rem; white-space: nowrap; position: relative; }
+.wiki-tab:hover { background: rgba(0,0,0,0.03); color: var(--text-color); }
+.wiki-tab.active { background: var(--bg-content, #fff); color: var(--accent-blue); border-top: 2px solid var(--accent-blue); margin-top: -1px; }
+.wiki-tab.dragging { opacity: 0.5; }
+.wiki-tab-icon { display: flex; align-items: center; opacity: 0.8; }
+.wiki-tab-icon svg { width: 13px; height: 13px; }
+.wiki-tab-name { overflow: hidden; text-overflow: ellipsis; }
+.wiki-tab-dirty { color: var(--accent-blue); font-weight: 700; margin-left: -0.15rem; }
+.wiki-tab-close { background: none; border: none; cursor: pointer; color: var(--accent-gray); font-size: 1rem; line-height: 1; padding: 0 0 0 0.15rem; border-radius: 3px; opacity: 0; flex-shrink: 0; }
+.wiki-tab:hover .wiki-tab-close, .wiki-tab.active .wiki-tab-close { opacity: 0.7; }
+.wiki-tab-close:hover { opacity: 1; background: rgba(0,0,0,0.08); color: var(--danger, #c53030); }
+/* R7: preview tabs are rendered slightly faded to stay distinguishable from
+   permanent tabs. R11: italic now exclusively means "currently editing" —
+   a plain click opens a preview slot, which is browsing, not editing. */
+.wiki-tab.preview .wiki-tab-name { opacity: 0.75; }
+.wiki-tab.editing .wiki-tab-name { font-style: italic; }
+.wiki-tab-add { background: none; border: none; cursor: pointer; color: var(--accent-gray); font-size: 1.05rem; line-height: 1; padding: 0 0.6rem; border-radius: 0; align-self: stretch; display: flex; align-items: center; flex-shrink: 0; margin-left: 0.15rem; }
+.wiki-tab-add:hover { background: rgba(0,0,0,0.08); color: var(--text-color, #222); }
+/* === end local plugins === */

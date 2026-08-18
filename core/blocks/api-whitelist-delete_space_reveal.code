@@ -1,0 +1,4 @@
+                      // === local plugins: admin delete space ===
+                      'delete_space',
+                      // === local plugins: reveal in file manager (admin) ===
+                      'reveal',

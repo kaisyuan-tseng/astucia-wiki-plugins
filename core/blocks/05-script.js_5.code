@@ -1,0 +1,5 @@
+    // === local plugins: tree drag/move + multi-select ===
+    initTreeDragMove();
+    // === local plugins: tabs ===
+    initTabs();
+    // === end local plugins ===

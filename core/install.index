@@ -1,0 +1,39 @@
+# === Astucia Wiki plugins — Tier 1 core-patch install index ===
+# Columns (TAB separated): relpath | action | anchor | codefile | guard
+#   action: insert=after anchor, before=before anchor, replace=anchor line -> codefile
+#   guard: skip block if target already contains this string
+
+script.js	insert	import { state } from './modules/core/state.js';	01-script.js_1.code	// === local plugins ===
+script.js	insert	    initPaneTabs();	02-script.js_2.code	// === local plugins: sidebar tab order (apply saved order + enable direct drag) ===
+script.js	insert	        onSpaceChange: async () => {	03-script.js_3.code	// === local plugins: tabs (warn before space switch discards unsaved tabs) ===
+script.js	replace	    initFileTree({ onLoadPage: loadPage, onGenerateTagCloud: generateTagCloud });	04-script.js_4.code	// === local plugins: tabs (route tree clicks through the tab manager) ===
+script.js	insert	    initSelectionActions();	05-script.js_5.code	// === local plugins: tree drag/move + multi-select ===
+script.js	replace	        await loadPage(result.path, pageId, item?.tags || []);	06-script.js_6.code	// === local plugins: tabs (open via tab manager so cached tabs restore) ===
+script.js	replace	            await loadPage(item.path, item.id, item.tags || []);	07-script.js_7.code	await openInTab(item.path, item.id, item.tags || []);
+script.js	insert	        await showBlankPage();	08-script.js_8.code	// === local plugins: tabs (no start page → no active tab) ===
+script.js	replace	    await loadPage(result.path, result.id, []);	09-script.js_9.code	await openInTab(result.path, result.id, []);
+api.php	before	                      'create_filesfolder', 'delete', 'move', 'copy_page', 'upload_attachment',	api-whitelist-toggle_reaction.code	// toggle_reaction mutates a .chat file (reactions), so it must follow the
+api.php	before	                      'admin_get_mcp_servers', 'admin_save_mcp_server', 'admin_delete_mcp_server', 'admin_test_mcp_server'];	api-whitelist-indexfiles.code	// indexfiles rebuilds index.json / graph.json / the FTS index — a
+api.php	before	                      'admin_get_mcp_servers', 'admin_save_mcp_server', 'admin_delete_mcp_server', 'admin_test_mcp_server'];	api-whitelist-delete_space_reveal.code	'delete_space',
+api.php	before	                $pref_data2 = file_exists(WIKI_SYSTEM_DATA . 'users.json') ? (json_decode(file_get_contents(WIKI_SYSTEM_DATA . 'users.json'), true) ?? ['users' => []]) : ['users' => []];	api-sidebar-preferences.code	// === local plugins: sidebar tab order + hidden ===
+api.php	before	            case 'create_space':	api-delete_space-reveal-cases.code	// Irreversible: removes the space directory and every derived artefact
+api.php	insert	        header("HTTP/1.1 500 Internal Server Error");	api-errorcode-i18n.code	// === local plugins: i18n of backend error messages ===
+getfile.php	before	    // 2. Construct the full path to the requested file.	20-getfile.php_1.code	// Space-level ACL. A restricted (non-admin) session user may only fetch
+getfile.php	insert	        // Set headers to display the file inline in the browser	21-getfile.php_2.code	// === local plugins: mime fallback ===
+search_index.php	before	    public function moveFolderPaths(string $space, string $oldPrefix, string $newPrefix): void {	22-search_index.php_1.code	// Drop every FTS shadow row + content row for a space. Mirrors the
+styles.css	insert	.pane-tab.active { border-bottom-color: var(--accent-blue); font-weight: bold; }	23-styles.css_1.code	/* === local plugins: sidebar tab order (layout editor) === */
+styles.css	insert	.space-item-rename-btn:hover { background: #e2e8f0; color: var(--text-color); }	24-styles.css_2.code	/* === local plugins: admin delete space === */
+styles.css	insert	.file-actions-menu-sep { height: 1px; background: var(--border-color); margin: 3px 4px; }	25-styles.css_3.code	/* === local plugins: context_menu (shared right-click menu) === */
+styles.css	insert	.pref-hint { margin: 0.3rem 0 0 1.6rem; font-size: 0.78rem; color: var(--accent-gray); }	26-styles.css_4.code	/* === local plugins: sidebar tab order === */
+styles.css	insert	.link-file-tree .file-item-content { color: var(--text-color); }	27-styles.css_5.code	/* === local plugins: tree drag/move + multi-select === */
+styles.css	before	.input-modal-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }	28-styles.css_6.code	/* === local plugins: tabs === */
+styles.css	insert	.nav-pane-empty { padding: 1rem 0.75rem; font-size: 0.82rem; color: var(--accent-gray); }	29-styles.css_7.code	/* === local plugins: recent clear-all header === */
+api.php	insert	                    $indexer->updateModified($_GET['file'], $actor['uid'], $actor['name']);	audit-save-update.code	write_access_log('FILE_UPDATE', (string)($actor['uid'] ?? '-'), ($actor['name'] ?? '-'), 'space=' . 
+api.php	before	                        echo json_encode(['success' => true, 'message' => 'File created.']);	audit-create-file.code	write_access_log('FILE_CREATE', (string)($actor['uid'] ?? '-'), ($actor['name'] ?? '-'), 'space=' . 
+api.php	insert	                else             $indexer->addPage($smp_path_raw, $actor['uid'], $actor['name']);	audit-save-message-page.code	write_access_log($smp_exists ? 'FILE_UPDATE' : 'FILE_CREATE', (string)($actor['uid'] ?? '-'), ($acto
+api.php	insert	                    if (mkdir($folder_path, 0777, true)) {	audit-create-folder.code	$cf_actor = get_current_actor();
+api.php	insert	                    if (delete_recursive($path_sanitized, $indexer, $space_dir, $search_idx)) {	audit-delete.code	$del_actor = get_current_actor();
+api.php	before	                    echo json_encode(['success' => true, 'message' => 'Item moved/renamed successfully.']);	audit-move.code	$actor_mv = get_current_actor();
+api.php	insert	                file_put_contents($folder_path . '/.filesfolder', '');	audit-create-filesfolder.code	$cff_actor = get_current_actor();
+api.php	insert	                if (!rename($rs_old_dir, $rs_new_dir)) throw new Exception('Could not rename space directory.');	audit-space-rename.code	$rs_actor = get_current_actor();
+api.php	insert	                $new_space_indexer->addPage('Main.md', $actor['uid'], $actor['name']);	audit-space-create.code	write_access_log('SPACE_CREATE', (string)($actor['uid'] ?? '-'), ($actor['name'] ?? '-'), 'space=' .

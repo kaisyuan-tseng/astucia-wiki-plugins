@@ -1,0 +1,10 @@
+/* === local plugins: context_menu (shared right-click menu) === */
+/* Same visual language as .file-actions-menu above; fixed-positioned by JS. */
+.ctx-menu { position: fixed; z-index: 1000; background: var(--bg-content, #fff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 6px; padding: 4px; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,0.14); }
+.ctx-menu-item { display: flex; align-items: center; gap: 0.5rem; width: 100%; background: none; border: none; padding: 0.38rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: var(--text-color); font-family: inherit; text-align: left; white-space: nowrap; }
+.ctx-menu-item:hover { background: #f0f4f8; }
+.ctx-menu-item svg { flex-shrink: 0; opacity: 0.7; }
+.ctx-menu-item-danger { color: var(--accent-danger); }
+.ctx-menu-item-danger:hover { background: #fff5f5; }
+.ctx-menu-sep { height: 1px; background: var(--border-color); margin: 3px 4px; }
+/* === end local plugins: context_menu === */

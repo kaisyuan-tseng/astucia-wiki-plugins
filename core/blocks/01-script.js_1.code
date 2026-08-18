@@ -1,0 +1,5 @@
+// === local plugins ===
+import { init as initTreeDragMove } from './plugins/tree_drag_move/index.js';
+import { init as initTabs, openInTab, resetTabs } from './plugins/tabs/index.js';
+import { init as initSidebarTabOrder } from './plugins/sidebar_tab_order/index.js';
+// === end local plugins ===

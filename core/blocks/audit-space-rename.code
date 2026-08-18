@@ -1,0 +1,2 @@
+                $rs_actor = get_current_actor();
+                write_access_log('SPACE_RENAME', (string)($rs_actor['uid'] ?? '-'), ($rs_actor['name'] ?? '-'), 'space=' . $rs_safe_old . ' -> ' . $rs_safe_new);

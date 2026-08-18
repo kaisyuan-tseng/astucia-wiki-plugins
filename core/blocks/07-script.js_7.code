@@ -1,0 +1,3 @@
+            // === local plugins: tabs ===
+            await openInTab(item.path, item.id, item.tags || []);
+            // === end local plugins ===

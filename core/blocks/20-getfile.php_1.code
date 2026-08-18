@@ -1,0 +1,26 @@
+    // === local plugins: reader write-access audit ===
+    // Space-level ACL. A restricted (non-admin) session user may only fetch
+    // files from spaces they are granted — otherwise a Reader could read any
+    // attachment / file library entry by URL. Mirrors api.php's
+    // actor_spaces_filter(): admin or spaces=null ⇒ unrestricted.
+    if (AUTHENTICATION_ENABLED && isset($_SESSION['user'])) {
+        $gacl_role   = $_SESSION['user']['role'] ?? 'reader';
+        $gacl_spaces = $_SESSION['user']['spaces'] ?? null;
+        if ($gacl_role !== 'admin' && is_array($gacl_spaces)) {
+            $gacl_target = '';
+            if ($_sp !== '') {
+                $gacl_target = $_sp_safe;
+            } else {
+                // No space param: the path is PAGES_DIR-relative and its first
+                // path segment is the space name (files_folder links).
+                $gacl_head = strtok(ltrim($requested_path, '/'), '/');
+                if ($gacl_head !== false) $gacl_target = $gacl_head;
+            }
+            if ($gacl_target !== '' && !in_array($gacl_target, $gacl_spaces, true)) {
+                header("HTTP/1.1 403 Forbidden");
+                echo "Access Denied";
+                exit;
+            }
+        }
+    }
+    // === end local plugins ===

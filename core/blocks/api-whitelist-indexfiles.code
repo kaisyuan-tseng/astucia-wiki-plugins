@@ -1,0 +1,5 @@
+                      // === local plugins: reader write-access audit ===
+                      // indexfiles rebuilds index.json / graph.json / the FTS index — a
+                      // maintenance write that was reachable by any role via a plain URL.
+                      'indexfiles',
+                      // === end local plugins ===

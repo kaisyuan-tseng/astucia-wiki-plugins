@@ -1,0 +1,23 @@
+    // === local plugins: admin delete space ===
+    // Drop every FTS shadow row + content row for a space. Mirrors the
+    // delete-then-commit pattern used by deletePage() but batched per space.
+    public function deleteSpace(string $space): void {
+        $stmt = $this->pdo->prepare("SELECT id, title, content FROM pages WHERE space=?");
+        $stmt->execute([$space]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$rows) return;
+        $this->pdo->exec("BEGIN IMMEDIATE");
+        try {
+            $delFts = $this->pdo->prepare(
+                "INSERT INTO pages_fts(pages_fts, rowid, title, content) VALUES('delete', ?, ?, ?)"
+            );
+            foreach ($rows as $r) {
+                $delFts->execute([(int)$r['id'], $r['title'], $r['content']]);
+            }
+            $this->pdo->prepare("DELETE FROM pages WHERE space=?")->execute([$space]);
+            $this->pdo->exec("COMMIT");
+        } catch (\Throwable $e) {
+            try { $this->pdo->exec("ROLLBACK"); } catch (\Throwable $_) {}
+        }
+    }
+    // === end local plugins ===

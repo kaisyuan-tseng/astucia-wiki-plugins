@@ -1,0 +1,219 @@
+import { api } from '../core/api.js';
+import { state } from '../core/state.js';
+import { loadPage } from '../page_view/index.js';
+import { revealAndSelectFile, refreshFileTree } from '../file_tree/index.js';
+import { t } from '../i18n/index.js';
+
+export const generateTagCloud = async () => {
+    const result = await api.call('get_tag_cloud');
+    const tagCloud = document.getElementById('tag-cloud');
+    tagCloud.innerHTML = '';
+    (result.data || []).forEach(({ tag, count }) => {
+        const tagEl = document.createElement('span');
+        tagEl.className = 'tag-cloud-item';
+        tagEl.textContent = `${tag} (${count})`;
+        tagEl.dataset.tag = tag;
+        tagCloud.appendChild(tagEl);
+    });
+};
+
+const RESULTS_PER_PAGE = 50;
+let _results    = [];
+let _showSpace  = false;
+let _title      = '';
+let _curPage    = 0;
+
+const PAGE_TYPE = (path) => {
+    if (path.endsWith('.drawio')) return { label: 'diagram', cls: 'sr-type-diagram' };
+    if (path.endsWith('.list'))   return { label: 'list',    cls: 'sr-type-list'    };
+    if (path.endsWith('.chat'))   return { label: 'chat',    cls: 'sr-type-chat'    };
+    return { label: 'page', cls: 'sr-type-page' };
+};
+
+const fmtDate = (ts) => {
+    if (!ts) return null;
+    const diff = Math.floor(Date.now() / 1000) - ts;
+    if (diff < 60)          return t('git.just-now');
+    if (diff < 3600)        return t('git.minutes-ago', { count: Math.floor(diff / 60) });
+    if (diff < 86400)       return t('git.hours-ago', { count: Math.floor(diff / 3600) });
+    if (diff < 7 * 86400)   return t('git.days-ago', { count: Math.floor(diff / 86400) });
+    return new Date(ts * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const buildResultCard = (page, showSpace) => {
+    const segments   = page.path.replace(/\.(md|drawio|list|chat)$/, '').split('/');
+    const name       = segments.pop();
+    const folderPath = segments.join(' / ');
+    const type       = PAGE_TYPE(page.path);
+    const heading    = (page.header || '').replace(/^#+\s*/, '').trim();
+
+    const tagsHtml = (page.tags || []).length
+        ? `<span class="sr-tags">${page.tags.map(t => `<span class="sr-tag">${escHtml(t)}</span>`).join('')}</span>`
+        : '';
+
+    const metaParts = [];
+    if (page.created) {
+        const who = page.createdBy?.name ? t('search.by-user', { name: escHtml(page.createdBy.name) }) : '';
+        metaParts.push(`<span class="sr-meta-item">${t('search.created-prefix')}${fmtDate(page.created)}${who}</span>`);
+    }
+    if (page.updated && page.updated !== page.created) {
+        const who = page.updatedBy?.name ? t('search.by-user', { name: escHtml(page.updatedBy.name) }) : '';
+        metaParts.push(`<span class="sr-meta-item">${t('search.updated-prefix')}${fmtDate(page.updated)}${who}</span>`);
+    }
+    const metaHtml = metaParts.length ? `<div class="sr-meta">${metaParts.join('<span class="sr-meta-sep">·</span>')}${tagsHtml}</div>` : (tagsHtml ? `<div class="sr-meta">${tagsHtml}</div>` : '');
+
+    const spaceBadge = (showSpace && page.space)
+        ? `<span class="sr-space-badge">${escHtml(page.space)}</span>` : '';
+
+    return `
+        <div class="sr-card">
+            <div class="sr-card-top">
+                <a href="#" class="sr-title search-result-link" data-id="${page.id}" data-space="${escHtml(page.space || '')}">${escHtml(name)}</a>
+                ${spaceBadge}<span class="sr-type-badge ${type.cls}">${type.label}</span>
+            </div>
+            ${folderPath ? `<div class="sr-path">${escHtml(folderPath)}</div>` : ''}
+            ${heading    ? `<div class="sr-heading">${escHtml(heading)}</div>` : ''}
+            ${page.preview ? `<div class="sr-preview">${page.preview}</div>` : ''}
+            ${metaHtml}
+        </div>`;
+};
+
+const renderPage = (page) => {
+    _curPage = page;
+    const total      = _results.length;
+    const totalPages = Math.ceil(total / RESULTS_PER_PAGE) || 1;
+    const start      = page * RESULTS_PER_PAGE;
+    const slice      = _results.slice(start, start + RESULTS_PER_PAGE);
+
+    const pageLabel = totalPages > 1 ? ` — ${t('search.page-of', { page: page + 1, total: totalPages })}` : '';
+    document.getElementById('current-page-title').textContent = `${_title} (${total})${pageLabel}`;
+
+    let html = `<div class="search-results">`;
+    if (total === 0) {
+        html += `<div class="sr-empty">${t('search.no-results')}</div>`;
+    } else {
+        slice.forEach(p => { html += buildResultCard(p, _showSpace); });
+        if (totalPages > 1) {
+            html += `<div class="sr-pagination">
+                <button class="sr-pag-btn" data-pag="prev"${page === 0 ? ' disabled' : ''}>${t('search.prev')}</button>
+                <span class="sr-pag-info">${t('search.page-of', { page: page + 1, total: totalPages })}</span>
+                <button class="sr-pag-btn" data-pag="next"${page >= totalPages - 1 ? ' disabled' : ''}>${t('search.next')}</button>
+            </div>`;
+        }
+    }
+    html += `</div>`;
+    document.getElementById('viewer-content').innerHTML = html;
+    document.getElementById('viewer-content').scrollTop = 0;
+};
+
+export const displaySearchResults = (title, results, showSpace = false) => {
+    state.currentPagePath = null;
+    state.currentPageId = null;
+    _results   = results;
+    _showSpace = showSpace;
+    _title     = title;
+
+    document.getElementById('page-id-display').classList.add('hidden');
+    document.getElementById('edit-btn').disabled = true;
+    document.getElementById('viewer-container').classList.remove('hidden');
+    document.getElementById('list-view-container').classList.add('hidden');
+    document.getElementById('chat-view-container').classList.add('hidden');
+    document.getElementById('diagram-viewer').classList.add('hidden');
+    document.getElementById('viewer-content').classList.remove('hidden');
+
+    // Clear edit state
+    document.getElementById('tags-container').classList.add('hidden');
+    document.getElementById('attachments-section').classList.add('hidden');
+    document.getElementById('page-actions-group').classList.add('hidden');
+    document.getElementById('save-btn').classList.add('hidden');
+    document.getElementById('cancel-btn').classList.add('hidden');
+    document.querySelector('.editor-container-wrapper').classList.add('hidden');
+    document.getElementById('viewer-container').classList.remove('hidden');
+    document.getElementById('edit-btn').classList.add('hidden');
+    document.getElementById('editor-mode-group')?.classList.add('hidden');
+    document.getElementById('page-chat-btn')?.classList.add('hidden');
+    document.getElementById('toc-btn')?.classList.add('hidden');
+
+    renderPage(0);
+};
+
+const performSearch = async () => {
+    const query = document.getElementById('search-query-input').value.trim();
+    if (!query) return;
+    const allSpaces = document.getElementById('search-all-spaces-chk')?.checked;
+    const params = { query };
+    if (allSpaces) params.all_spaces = '1';
+    const result = await api.call('search', params);
+    if (result.success) {
+        displaySearchResults(t('search.results', { query }), result.data, !!result.cross_space);
+    }
+};
+
+export const init = () => {
+    const tagCloud = document.getElementById('tag-cloud');
+    const searchQueryInput = document.getElementById('search-query-input');
+    const searchQueryBtn = document.getElementById('search-query-btn');
+    const viewerContent = document.getElementById('viewer-content');
+
+    // Show "Search all spaces" toggle only when SQLite engine is active.
+    if (window.WIKI_SEARCH_ENGINE === 'sqlite') {
+        document.getElementById('search-all-spaces-row')?.classList.remove('hidden');
+    }
+
+    tagCloud.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('tag-cloud-item')) {
+            const tag = e.target.dataset.tag;
+            const result = await api.call('get_pages_by_tag', { tag, all_spaces: '1' });
+            if (result.success) displaySearchResults(t('search.tag-results', { tag }), result.data, !!result.cross_space);
+        }
+    });
+
+    searchQueryBtn.addEventListener('click', performSearch);
+    searchQueryInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') performSearch(); });
+
+    // Click on a search result link — handles same-space and cross-space navigation.
+    viewerContent.addEventListener('click', async (e) => {
+        const pagBtn = e.target.closest('[data-pag]');
+        if (pagBtn) {
+            const totalPages = Math.ceil(_results.length / RESULTS_PER_PAGE) || 1;
+            if (pagBtn.dataset.pag === 'prev' && _curPage > 0) renderPage(_curPage - 1);
+            else if (pagBtn.dataset.pag === 'next' && _curPage < totalPages - 1) renderPage(_curPage + 1);
+            return;
+        }
+
+        const link = e.target.closest('.search-result-link');
+        if (!link) return;
+        e.preventDefault();
+        const pageId    = link.dataset.id;
+        const linkSpace = link.dataset.space || null;
+
+        // Pass the result's space so get_path_from_id uses the right indexer.
+        const getParams = { pageid: pageId };
+        if (linkSpace && linkSpace !== state.currentSpace) getParams.space = linkSpace;
+        const result = await api.call('get_path_from_id', getParams);
+
+        if (result.success && result.path) {
+            const targetSpace = result.space || (linkSpace !== state.currentSpace ? linkSpace : null);
+            if (targetSpace && targetSpace !== state.currentSpace) {
+                const { switchSpaceSilently } = await import('../spaces/index.js');
+                switchSpaceSilently(targetSpace);
+                await refreshFileTree();
+            }
+
+            const findItem = (items, path) => {
+                for (const item of items) {
+                    if (item.path === path) return item;
+                    if (item.children) { const found = findItem(item.children, path); if (found) return found; }
+                }
+                return null;
+            };
+            const item = findItem(state.fullFileTree, result.path);
+            document.querySelector('.pane-tab[data-pane="pages"]').click();
+            await loadPage(result.path, pageId, item?.tags || []);
+            revealAndSelectFile(result.path);
+            history.pushState({ pageId }, '', `?pageid=${pageId}`);
+        }
+    });
+};

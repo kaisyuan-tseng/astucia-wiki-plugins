@@ -1,0 +1,12 @@
+            // === local plugins: tabs (warn before space switch discards unsaved tabs) ===
+            try {
+                const { hasUnsavedTabs } = await import('./plugins/tabs/index.js');
+                if (hasUnsavedTabs()) {
+                    const { showToast } = await import('./modules/core/utils.js');
+                    const { t } = await import('./modules/i18n/index.js');
+                    showToast(t('tabs.space-switch-warn'), 'info');
+                }
+            } catch {}
+            // === local plugins: tabs (clear tabs from the previous space) ===
+            resetTabs();
+            // === end local plugins ===

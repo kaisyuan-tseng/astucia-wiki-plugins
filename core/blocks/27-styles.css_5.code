@@ -1,0 +1,9 @@
+/* === local plugins: tree drag/move + multi-select === */
+.file-item-content.tree-selected, .browse-item-content.tree-selected { background: #dbeafe !important; }
+.file-item-content.tree-selected .file-item-name, .browse-item-content.tree-selected .file-item-name { color: var(--accent-blue); }
+.file-item-content.tree-drop-target, .browse-item-content.tree-drop-target { background: #ebf4ff !important; outline: 1px dashed var(--accent-blue); outline-offset: -1px; }
+/* Blank-area drop affordance: a dashed underline hint that dropping here moves
+   items to the space root. */
+#file-navigator.tree-drop-root, #file-browser.tree-drop-root, #pages-pane.tree-drop-root { background: #f0f7ff; }
+#file-navigator.tree-drop-root, #file-browser.tree-drop-root { box-shadow: inset 0 2px 0 var(--accent-blue); }
+/* === end local plugins === */

@@ -1,0 +1,3 @@
+    // === local plugins: sidebar tab order (apply saved order + enable direct drag) ===
+    initSidebarTabOrder();
+    // === end local plugins ===

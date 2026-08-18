@@ -1,0 +1,25 @@
+import { state } from '../core/state.js';
+import { showToast } from '../core/utils.js';
+import { renderListView } from './render.js';
+import { t } from '../i18n/index.js';
+
+export const saveListData = async () => {
+    try {
+        const spaceQs = state.currentSpace ? `&space=${encodeURIComponent(state.currentSpace)}` : '';
+        const response = await fetch(`api.php?action=save&file=${encodeURIComponent(state.currentPagePath)}${spaceQs}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state.currentListData, null, 4),
+        });
+        if (!response.ok) throw new Error(t('list.save-failed'));
+        const result = await response.json();
+        if (result.success) {
+            showToast(t('list.updated'), 'success');
+            renderListView();
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        showToast(`${t('list.error-prefix')} ${error.message}`, 'error');
+    }
+};

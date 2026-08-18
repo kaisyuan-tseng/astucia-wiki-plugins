@@ -1,0 +1,9 @@
+                    $actor_mv = get_current_actor();
+                    $mv_is_rename = dirname($old_path_raw) === dirname($new_path_raw);
+                    write_access_log(
+                        $is_directory
+                            ? ($mv_is_rename ? 'FOLDER_RENAME' : 'FOLDER_MOVE')
+                            : ($mv_is_rename ? 'FILE_RENAME'   : 'FILE_MOVE'),
+                        (string)($actor_mv['uid'] ?? '-'), ($actor_mv['name'] ?? '-'),
+                        'space=' . $src_space_name . ' path=' . ltrim(str_replace('..', '', $old_path_raw), '/') . ' -> ' . $tgt_space_name . ':' . ltrim(str_replace('..', '', $new_path_raw), '/')
+                    );

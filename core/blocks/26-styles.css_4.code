@@ -1,0 +1,7 @@
+/* === local plugins: sidebar tab order === */
+.pref-tab-order-list { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.pref-tab-order-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; background: var(--bg-light, #f7fafc); border: 1px solid var(--border-color, #e2e8f0); border-radius: 6px; cursor: grab; font-size: 0.88rem; }
+.pref-tab-order-row.dragging { opacity: 0.5; cursor: grabbing; }
+.pref-tab-order-handle { color: var(--accent-gray); font-size: 1rem; line-height: 1; user-select: none; }
+.pref-tab-order-name { flex: 1; }
+/* === end local plugins === */

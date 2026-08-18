@@ -1,0 +1,2 @@
+                        $del_actor = get_current_actor();
+                        write_access_log($del_is_dir ? 'FOLDER_DELETE' : 'FILE_DELETE', (string)($del_actor['uid'] ?? '-'), ($del_actor['name'] ?? '-'), 'space=' . _sidx_space() . ' path=' . ltrim(str_replace('..', '', $path_raw), '/'));

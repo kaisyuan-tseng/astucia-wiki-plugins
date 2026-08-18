@@ -1,0 +1,21 @@
+/* === local plugins: sidebar tab order (layout editor) === */
+.pane-tabs { position: relative; } /* anchor for the Add-tab dropdown */
+.pane-tab[draggable="true"] { cursor: grab; }
+.pane-tab[draggable="true"]:active { cursor: grabbing; }
+.pane-tab.dragging { opacity: 0.5; }
+/* Edit-mode affordances: the whole bar is visibly "in edit", each tab gains a
+   drag handle (::before) and a visibility toggle (span). Entry/exit happens
+   through the tab-bar right-click context menu (no dedicated buttons). */
+.pane-tabs.editing { background: rgba(0,0,0,0.03); outline: 1px dashed var(--accent-blue); outline-offset: -1px; border-radius: 4px; }
+.pane-tabs.editing .pane-tab { position: relative; padding-left: 1.15rem; cursor: grab; }
+.pane-tabs.editing .pane-tab::before { content: '⠿'; position: absolute; left: 0.25rem; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.75rem; }
+.pane-tab-vis-toggle { display: none; }
+.pane-tabs.editing .pane-tab-vis-toggle { display: inline-flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; margin-left: 0.3rem; font-size: 0.68rem; line-height: 1; cursor: pointer; border-radius: 3px; color: var(--accent-gray); }
+.pane-tabs.editing .pane-tab-vis-toggle:hover { background: rgba(0,0,0,0.08); }
+.pane-tabs.editing .pane-tab-vis-toggle.off { color: #999; text-decoration: line-through; }
+.pane-tab-add-menu { position: absolute; z-index: 50; top: calc(100% + 4px); right: 0; min-width: 9rem; background: var(--bg-content, #fff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); padding: 0.25rem; display: flex; flex-direction: column; gap: 2px; }
+.pane-tab-add-menu.hidden { display: none; }
+.pane-tab-add-item { background: none; border: none; text-align: left; padding: 0.4rem 0.5rem; border-radius: 4px; cursor: pointer; color: var(--sidebar-text); font-size: 0.82rem; }
+.pane-tab-add-item:hover { background: rgba(0,0,0,0.06); }
+.pane-tab-add-empty { padding: 0.4rem 0.5rem; font-size: 0.78rem; color: var(--accent-gray); }
+/* === end local plugins === */

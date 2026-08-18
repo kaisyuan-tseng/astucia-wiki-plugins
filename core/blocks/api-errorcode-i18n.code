@@ -1,0 +1,13 @@
+        // === local plugins: i18n of backend error messages ===
+        // Permission / ACL exceptions get a machine-readable code so the
+        // frontend can show the user's language (see modules/core/api.js).
+        $resp_code = [
+            'Access denied to this space.'    => 'perm.space-denied',
+            'Access denied to target space.'  => 'perm.space-denied',
+            'Readers cannot modify content.'  => 'perm.denied',
+            'Admin access required.'          => 'perm.admin',
+        ][$e->getMessage()] ?? null;
+        $resp_body = ['success' => false, 'message' => $e->getMessage()];
+        if ($resp_code !== null) $resp_body['code'] = $resp_code;
+        echo json_encode($resp_body);
+        // === end local plugins ===

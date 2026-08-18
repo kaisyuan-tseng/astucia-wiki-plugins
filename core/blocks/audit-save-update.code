@@ -1,0 +1,1 @@
+                    write_access_log('FILE_UPDATE', (string)($actor['uid'] ?? '-'), ($actor['name'] ?? '-'), 'space=' . _sidx_space() . ' path=' . ltrim(str_replace('..', '', $_GET['file']), '/'));

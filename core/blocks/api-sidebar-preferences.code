@@ -1,0 +1,36 @@
+                // === local plugins: sidebar tab order + hidden ===
+                // Stored as a JSON array of pane-tab ids (e.g. ["pages","tags","recent","saved"]).
+                // No hard-coded id whitelist: unknown ids are kept so future tabs survive,
+                // but each entry must be a short string and the total length bounded.
+                $new_tab_order = null;
+                if (isset($_POST['sidebarTabOrder']) && $_POST['sidebarTabOrder'] !== '') {
+                    $decoded_order = json_decode($_POST['sidebarTabOrder'], true);
+                    if (is_array($decoded_order) && count($decoded_order) <= 20) {
+                        $clean_order = [];
+                        foreach ($decoded_order as $_tab_id) {
+                            $_tab_id = is_string($_tab_id) ? trim($_tab_id) : '';
+                            if ($_tab_id !== '' && strlen($_tab_id) <= 40 && !in_array($_tab_id, $clean_order, true)) {
+                                $clean_order[] = $_tab_id;
+                            }
+                        }
+                        if ($clean_order) $new_tab_order = $clean_order;
+                    }
+                }
+                // Hidden pane ids (subset of the tabs the user chose not to show).
+                $new_tab_hidden = null;
+                if (isset($_POST['sidebarTabHidden']) && $_POST['sidebarTabHidden'] !== '') {
+                    $decoded_hidden = json_decode($_POST['sidebarTabHidden'], true);
+                    if (is_array($decoded_hidden) && count($decoded_hidden) <= 20) {
+                        $clean_hidden = [];
+                        foreach ($decoded_hidden as $_hid) {
+                            $_hid = is_string($_hid) ? trim($_hid) : '';
+                            if ($_hid !== '' && strlen($_hid) <= 40 && !in_array($_hid, $clean_hidden, true)) {
+                                $clean_hidden[] = $_hid;
+                            }
+                        }
+                        $new_tab_hidden = $clean_hidden;
+                    }
+                }
+                // === end local plugins ===
+                $pref_data2 = file_exists(WIKI_SYSTEM_DATA . 'users.json') ? (json_decode(file_get_contents(WIKI_SYSTEM_DATA . 'users.json'), true) ?? ['users' => []]) : ['users' => []];
+                $found_pref = false;

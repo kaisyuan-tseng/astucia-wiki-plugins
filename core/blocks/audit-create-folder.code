@@ -1,0 +1,2 @@
+                        $cf_actor = get_current_actor();
+                        write_access_log('FOLDER_CREATE', (string)($cf_actor['uid'] ?? '-'), ($cf_actor['name'] ?? '-'), 'space=' . _sidx_space() . ' path=' . ltrim(str_replace('..', '', $_POST['path']), '/'));

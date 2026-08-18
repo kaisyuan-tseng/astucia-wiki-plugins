@@ -1,0 +1,7 @@
+/* === local plugins: recent clear-all header === */
+.nav-pane-header { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0.5rem 0.15rem; }
+.nav-pane-header-title { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-gray); }
+.nav-pane-clear-btn { background: none; border: none; color: var(--accent-gray); cursor: pointer; font-size: 0.72rem; padding: 0 2px; opacity: 0; transition: opacity 0.1s; }
+.nav-pane-header:hover .nav-pane-clear-btn { opacity: 1; }
+.nav-pane-clear-btn:hover { color: var(--accent-danger); }
+/* === end local plugins === */

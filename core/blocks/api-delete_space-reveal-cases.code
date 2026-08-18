@@ -1,0 +1,136 @@
+            // === local plugins: admin delete space ===
+            // Irreversible: removes the space directory and every derived artefact
+            // (index.json, graph.json, SQLite FTS rows, per-user space grants).
+            // Admin-only via $admin_actions. The front end gates this further with
+            // a type-the-name confirmation. Mirrors rename_space's users.json cleanup.
+            case 'delete_space':
+                $del_sp       = trim($_POST['name'] ?? '');
+                $del_sp_safe  = basename($del_sp);
+                if ($del_sp === '' || $del_sp_safe !== $del_sp) throw new Exception('Invalid space name.');
+                if ($del_sp_safe[0] === '.') throw new Exception('Invalid space name.');
+                $del_sp_dir = PAGES_DIR . '/' . $del_sp_safe;
+                if (!is_dir($del_sp_dir) && !is_link($del_sp_dir)) throw new Exception('Space not found.');
+
+                // === local plugins: symlink-space safety ===
+                // A custom-path Space is a symlink under PAGES_DIR. Deleting it
+                // must remove ONLY the link — recursing into it would delete the
+                // real target directory's files (data loss + outside PAGES_DIR).
+                if (is_link($del_sp_dir)) {
+                    @unlink($del_sp_dir);
+                } else {
+                // === end local plugins ===
+                $rrm = function ($p) use (&$rrm) {
+                    if (!is_dir($p)) { @unlink($p); return; }
+                    foreach (scandir($p) as $e) {
+                        if ($e === '.' || $e === '..') continue;
+                        $rrm($p . '/' . $e);
+                    }
+                    @rmdir($p);
+                };
+                $rrm($del_sp_dir);
+                } // end non-symlink branch
+                // === end local plugins ===
+
+                if ($search_idx) {
+                    try { $search_idx->deleteSpace($del_sp_safe); } catch (\Throwable $_e) {}
+                }
+                // Strip this space from every user's spaces grant list.
+                if (defined('WIKI_SYSTEM_DATA') && file_exists(WIKI_SYSTEM_DATA . 'users.json')) {
+                    $del_uf = json_decode(file_get_contents(WIKI_SYSTEM_DATA . 'users.json'), true) ?? ['users' => []];
+                    $del_changed = false;
+                    foreach ($del_uf['users'] as &$del_u) {
+                        if (!isset($del_u['spaces']) || !is_array($del_u['spaces'])) continue;
+                        $before = count($del_u['spaces']);
+                        $del_u['spaces'] = array_values(array_filter($del_u['spaces'], fn($s) => $s !== $del_sp_safe));
+                        if (count($del_u['spaces']) !== $before) $del_changed = true;
+                    }
+                    unset($del_u);
+                    if ($del_changed) {
+                        file_put_contents(WIKI_SYSTEM_DATA . 'users.json', json_encode($del_uf, JSON_PRETTY_PRINT));
+                    }
+                }
+                write_access_log('SPACE_DELETE', $del_sp_safe, (get_current_actor()['name'] ?? '-'));
+                echo json_encode(['success' => true]);
+                break;
+            // === end local plugins ===
+
+            // === local plugins: reveal in file manager (admin) ===
+            // Admin-only (guarded by $admin_actions). Locates the real
+            // filesystem position of a wiki file/folder in the operating
+            // system's file manager. NOTE: this acts on the SERVER's file
+            // system — with a local (self-hosted) install that is the user's
+            // own machine; on a remote server it would open the server's
+            // file manager, which is usually not what the browser user wants.
+            // This is inherent to the web architecture and is documented as a
+            // limitation, not hidden.
+            case 'reveal':
+                $rv_rel = trim($_POST['path'] ?? '');
+                $rv_rel = ltrim(str_replace('..', '', $rv_rel), '/');
+                $rv_base = realpath(PAGES_DIR);
+                if ($rv_rel === '') {
+                    $rv_full = $space_dir;   // locate the space root itself
+                } else {
+                    $rv_full = rtrim($space_dir, '/') . '/' . $rv_rel;
+                }
+                if (!file_exists($rv_full) && !is_link($rv_full)) {
+                    throw new Exception('Path does not exist.');
+                }
+                $rv_real = realpath($rv_full);
+                // Stay inside PAGES_DIR: realpath resolves symlinks, so a link
+                // that escapes the wiki root is rejected here (no path traversal,
+                // no symlink escape — even for admins).
+                if ($rv_real === false || $rv_base === false || strpos($rv_real, $rv_base) !== 0) {
+                    throw new Exception('Access denied to target path.');
+                }
+                $rv_family = defined('PHP_OS_FAMILY') ? PHP_OS_FAMILY : 'Unknown';
+                $rv_ok     = false;
+                if ($rv_family === 'Windows') {
+                    // explorer /select,<path> — GUI, returns quickly. The path
+                    // must be double-quoted with a BARE /select, prefix.
+                    // proc_open's array form wraps the whole argument in quotes,
+                    // which explorer (a GUI app) fails to parse and silently
+                    // opens the default Documents library instead — so the
+                    // command line is built by hand with cmd special-char
+                    // escaping (^ & | < > ( ) % — legal in Windows paths).
+                    $rv_cmd = str_replace(['^', '&', '|', '<', '>', '(', ')', '%'],
+                                          ['^^', '^&', '^|', '^<', '^>', '^(', '^)', '%%'], $rv_real);
+                    @exec('explorer.exe /select,"' . $rv_cmd . '" 2>NUL', $rv_out, $rv_code);
+                    // explorer is a GUI launcher: it detaches immediately and
+                    // gives no reliable exit code — shell acceptance is enough.
+                    // It may also open BEHIND other windows, so a follow-up
+                    // PowerShell step finds the Explorer window for the
+                    // containing folder (an Explorer window's title IS the
+                    // folder name) and calls FolderView.Focus() to bring it to
+                    // the foreground. Best effort — Windows' focus rules are
+                    // OS-controlled; if the reveal window cannot be matched,
+                    // it still opens, just without guaranteed focus.
+                    $rv_dir_base = basename(dirname($rv_real));
+                    $rv_focus = 'powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Milliseconds 350; '
+                              . '$w=(New-Object -ComObject Shell.Application).Windows() | Where-Object { $_.Title -eq \'' . $rv_dir_base . '\' } | Select-Object -First 1; '
+                              . 'if ($w) { $w.Focus() }" >NUL 2>&1';
+                    @exec($rv_focus, $rv_out2, $rv_code2);
+                    $rv_ok = true;
+                } elseif ($rv_family === 'Darwin') {
+                    // Finder: open -R selects the item in the parent window.
+                    // `open` activates Finder; osascript re-asserts it so the
+                    // Finder window reliably comes to the front.
+                    @exec('open -R ' . escapeshellarg($rv_real) . ' 2>/dev/null', $rv_out, $rv_code);
+                    @exec('osascript -e \'tell application "Finder" to activate\' 2>/dev/null', $rv_out2, $rv_code2);
+                    $rv_ok = ($rv_code === 0);
+                } else {
+                    // Linux/BSD: no portable "reveal" — open the parent
+                    // directory in the default file manager (xdg-open). Selecting
+                    // the item needs a desktop-specific D-Bus call; opening the
+                    // folder is the portable fallback. Foreground focus is the
+                    // window manager's decision — there is no portable way to
+                    // force it, so xdg-open itself is the best effort.
+                    @exec('xdg-open ' . escapeshellarg(dirname($rv_real)) . ' >/dev/null 2>&1 &', $rv_out, $rv_code);
+                    $rv_ok = ($rv_code === 0);
+                }
+                if (!$rv_ok) {
+                    throw new Exception('Could not launch the file manager (shell functions may be disabled).');
+                }
+                write_access_log('FILE_REVEAL', basename(rtrim($space_dir, '/')), $rv_rel, (get_current_actor()['name'] ?? '-'));
+                echo json_encode(['success' => true, 'platform' => $rv_family]);
+                break;
+            // === end local plugins ===
