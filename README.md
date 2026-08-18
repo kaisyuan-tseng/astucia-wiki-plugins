@@ -1,153 +1,157 @@
-# Astucia Wiki Plugins — 一键安装插件包
+# Astucia Wiki Plugins — one-click install bundle
 
-为 [Astucia Wiki](https://github.com/madsrg/astucia-wiki) 增加一组文件管理能力，
-**任何下载了 Astucia Wiki 源码的人都能直接安装**。
+> 🌐 **中文版**: see [README.zh.md](README.zh.md)
 
-> 📖 **English version**: see [README.en.md](README.en.md)
+A drop-in set of file-management plugins for [Astucia Wiki](https://github.com/madsrg/astucia-wiki).
+**Anyone with a fresh Astucia Wiki checkout can install this in one command.**
 
 ```
-插件包 (本目录)
-   │  bash installer/install.sh <wiki根目录>
+plugin bundle (this directory)
+   │  bash installer/install.sh <wiki-root>
    ▼
-你的 Astucia Wiki 项目根目录
+your Astucia Wiki project root
 ```
 
-## 这个包装了什么（最终效果）
+## What you get (final effect)
 
-| 插件 | 功能 |
+| Plugin | Feature |
 |---|---|
-| **Tabs** | 浏览器式文件标签页：每个标签独立保存滚动位置 / 光标 / 未保存编辑；单击打开为可替换的"预览"标签、右键"在新标签页打开"为永久标签；标签可拖拽排序、右键关闭；斜体 = 正在编辑 |
-| **Tree Drag & Move** | 文件树多选（Ctrl/Shift）+ 拖拽移动（根目录是合法落点）+ 完整右键菜单（打开/新标签页/复制/移动/重命名/Backlinks/删除/在文件管理器中显示） |
-| **Sidebar Tab Order** | 侧边栏（页面/标签/最近/收藏）右键进入编辑模式：拖拽排序、隐藏/恢复面板，跨设备同步 |
-| **Context Menu** | 共享右键菜单组件（上述插件的底座，无独立界面） |
+| **Tabs** | Browser-style file tabs: each tab independently keeps its scroll position, cursor, unsaved edits; single-click opens a replaceable "preview" tab, right-click "open in new tab" makes it permanent; tabs can be drag-reordered, right-click closed; italic name = currently editing |
+| **Tree Drag & Move** | File-tree multi-select (Ctrl/Shift) + drag-and-drop (root is a valid drop target) + full right-click menu (open / new tab / duplicate / move / rename / Backlinks / delete / reveal in file manager) |
+| **Sidebar Tab Order** | Right-click the sidebar (Pages / Tags / Recent / Saved) to enter edit mode: drag to reorder, hide/show panes, synced across devices |
+| **Context Menu** | Shared right-click menu component (used by the above, no UI of its own) |
 
-附带的基础修复：文件树刷新不再收起已展开的目录；Tab 编辑状态跨标签切换完整恢复；
-管理员可删除 Space、在文件管理器中显示文件（Windows/macOS/Linux）。
+Bonus fixes: file tree no longer collapses expanded folders on refresh; tab edit state survives switching; admins can delete a Space and reveal a file in the OS file manager (Windows / macOS / Linux).
 
-![中文界面：侧边栏标签、文件树、内容区、tabs 栏](screenshots/browse-zh.png)
+![Chinese UI](screenshots/browse-zh.png)
 
-**8 语言全量本地化**：en/zh/hi/da/sv/es/fr/de 共 **7800+ key**（zh 994、hi 1001、de 781…）。
-侧边栏 / 搜索 / TOC / 面板标题 / 编辑 / 历史 / 管理 / 偏好设置 / 各弹窗 等 UI 字符串切换语言即时生效。
-覆盖方式：
-- `index.php` 全量整体替换（**309 处 data-i18n**，含侧边栏 pane-tab"最近访问/目录树/搜索"、
-  admin 分组"用户/AI/监控/内容"、各 modal 标题等——此前这些是遗漏点）
-- 43 个模块级 i18n 改动（admin/chat/list/toc/...）以 Tier 2 整体替换方式打包
+**Full 8-language localization**: en / zh / hi / da / sv / es / fr / de, **7800+ keys** total
+(zh 994 · hi 1001 · de 781 · ...). Every visible UI string — sidebar tabs, search box,
+TOC title, edit / history / admin / preferences, modal titles — translates instantly.
+Coverage:
+- `index.php` is shipped as a whole file (Tier 2 replace) with **309 `data-i18n` sites** —
+  sidebar tabs, admin pane groups, every modal title, share / chat / AI-clone dialogs
+- 43 modules (admin / chat / list / toc / ...) shipped as whole files with their R10 i18n deltas
 
-![侧边栏中文 pane-tab 与 admin 分组中文](screenshots/admin-zh.png)
+![Sidebar tabs + admin groups in Chinese](screenshots/admin-zh.png)
 
-**操作日志审计**：复用项目自带的 `write_access_log`，在 11 类关键动作的成功分支
-插入审计调用：FILE_UPDATE / FILE_CREATE / FILE_DELETE / FOLDER_CREATE / FOLDER_DELETE /
-FILE_MOVE / FILE_RENAME / FOLDER_MOVE / FOLDER_RENAME / FILESFOLDER_CREATE /
-SPACE_CREATE / SPACE_RENAME / SPACE_DELETE / FILE_REVEAL。日志格式
-`时间 | 事件 | uid | name | IP | 详情`，写入 `LOG_DIR/yyyy-mm-dd_access.log`。
+**Operation audit log**: reuses the project's built-in `write_access_log`. Adds calls in
+11 critical success branches: FILE_UPDATE / FILE_CREATE / FILE_DELETE / FOLDER_CREATE /
+FOLDER_DELETE / FILE_MOVE / FILE_RENAME / FOLDER_MOVE / FOLDER_RENAME / FILESFOLDER_CREATE /
+SPACE_CREATE / SPACE_RENAME / SPACE_DELETE / FILE_REVEAL. Format
+`timestamp | EVENT | uid | name | IP | detail`, written to `LOG_DIR/yyyy-mm-dd_access.log`.
 
-![语言下拉：8 种语言即时切换](screenshots/lang-dropdown.png)
+> **Verified on v2026.7.41** (clean install, PHP built-in server, headless-browser +
+> curl): **78 patches / 0 needs-manual**, `php -l` clean for 4 core files, all 11 audit
+> events land in the log, language switch en / zh / de translates search box and TOC
+> panel correctly, zero page errors. See `screenshots/` for proof.
 
-> **实测验证**（v2026.7.41 干净安装，PHP 内置服务器 127.0.0.1:8478，浏览器 + curl）：
-> 80 patches / 0 needs-manual，`php -l` 4 个核心文件全过；
-> 语言切换实测 en / zh / de：搜索框（Search pages… / 搜索页面… / Seiten suchen…）、
-> TOC 面板（Contents / 目录 / Inhalt）全部正确翻译；
-> 11 类审计事件全部触发并写入日志，零页面错误。
+## Requirements
 
-![英文界面：同样的 UI 结构](screenshots/browse-en.png)
-> 语言切换实测 en / zh / de：搜索框（Search pages… / 搜索页面… / Seiten suchen…）、
-> TOC 面板（Contents / 目录 / Inhalt）全部正确翻译；
-> 11 类审计事件全部触发并写入日志，零页面错误。
+- Astucia Wiki **v2026.7.40 / v2026.7.41 verified** (the installer uses anchor-based
+  positioning, so small upstream changes still install; major mismatches are
+  reported explicitly)
+- PHP 8.0+ (same as the wiki itself)
 
-## 环境要求
-
-- Astucia Wiki **v2026.7.40 / v2026.7.41 实测通过**（安装脚本用"锚点"定位，
-  上游小改动仍能装，差异明显时会明确提示手动处理）
-- PHP 8.0+（与 Wiki 本身一致）
-
-## 安装（3 步）
+## Install (3 steps)
 
 ```bash
-# 1. 把本目录解压到任意位置（不要求放在 wiki 内）
-# 2. 运行安装脚本，参数是你的 wiki 根目录
+# 1. Unzip this directory anywhere (does not need to be inside the wiki)
+# 2. Run the installer with your wiki root as the argument
 bash installer/install.sh /var/www/astucia-wiki
 # Windows (Git Bash):  bash installer/install.sh "E:/sites/astucia-wiki"
 
-# 3. 清空浏览器缓存（Ctrl+Shift+R），刷新页面
+# 3. Clear your browser cache (Ctrl+Shift+R) and reload
 ```
 
-脚本做的事：
-1. 在 wiki 根目录创建 `plugins-backup/` 备份所有将被修改的文件（**固定目录**，
-   首次安装创建，重复安装不会覆盖，保证卸载总能还原安装前的原始文件）
-2. 复制 4 个插件到 `wiki/plugins/`
-3. 整体替换 `core/replace/` 里的 44 个文件（index.php + 43 个模块，含插件配套 +
-   R10 全量本地化 + bug 修复）
-4. 对 6 个核心文件按锚点打 34 个补丁（自动定位、自动跳过已装内容，可反复运行）
+What the installer does:
+1. Creates `plugins-backup/` in the wiki root and backs up every file it will touch
+   (fixed directory name — idempotent re-runs never pollute it, so uninstall
+   always restores the pre-install originals)
+2. Copies the 4 plugins to `wiki/plugins/`
+3. Replaces the 44 files in `core/replace/` (index.php + 43 modules — plugin wiring,
+   R10 full localization, bug fixes)
+4. Applies 34 anchor-based patches to 6 core files (auto-located, auto-skipped on
+   repeat runs)
 
-**输出含义**：`applied` = 已打补丁或已复制；`skipped` = 已安装过（幂等）；
-`needs-manual` = 锚点未找到（上游版本差异），见下方"手动安装"。
+**Output meaning**: `applied` = patched or copied; `skipped` = already installed
+(idempotent); `needs-manual` = anchor not found (upstream version drift) — see
+"Manual install" below.
 
-## 手动安装（脚本提示 needs-manual 时）
-
-每个补丁块都带 `=== local plugins ===` 标记。手动安装 = 把
-`core/blocks/<文件名>.code` 的内容，放到 `core/install.index` 中对应行
-指定的锚点位置（`anchor` 列），并确保该行在 wiki 源码中存在。
-`core/install.index` 有完整说明。脚本已自动跳过已装块，手动补完再跑一次即可。
-
-## 卸载
+## Uninstall
 
 ```bash
 bash installer/uninstall.sh /var/www/astucia-wiki
 ```
 
-从备份目录恢复全部被改文件并删除插件目录。
+Restores every patched / replaced file from `plugins-backup/` and removes the 4
+plugin directories.
 
-## 目录结构
+![Language dropdown](screenshots/lang-dropdown.png)
+
+## Manual install (when the script reports `needs-manual`)
+
+Every patch block carries an `=== local plugins ===` marker. To install manually,
+copy the contents of `core/blocks/<file>.code` to the anchor line in
+`core/install.index` (the `anchor` column) of the target file. `core/install.index`
+has the full legend.
+
+## Directory layout
 
 ```
 astucia-wiki-plugins/
-├── README.md                ← 本文件
-├── README.en.md             ← English version
-├── plugins/                 # 4 个插件本体（完整、自包含）
+├── README.md                ← this file (English, primary)
+├── README.zh.md             ← 中文版
+├── plugins/                 # 4 plugins (complete, self-contained)
 │   ├── context_menu/
 │   ├── sidebar_tab_order/
 │   ├── tabs/
 │   └── tree_drag_move/
 ├── core/
-│   ├── install.index        # 打补丁清单（文件/锚点/幂等标记）
-│   ├── blocks/              # 每个补丁的代码块（带 === local plugins === 标记的代码）
-│   └── replace/             # 整体替换的文件（44 个：index.php + 43 模块，插件接线 + R10 全量 i18n + bug 修复）
+│   ├── install.index        # patch list (file / anchor / idempotency guard)
+│   ├── blocks/              # patch code (each file = one block, with === local plugins === marker)
+│   └── replace/             # 44 whole-file replacements (index.php + 43 modules)
 ├── installer/
-│   ├── install.sh           # 安装（备份+复制+打补丁，幂等）
-│   └── uninstall.sh         # 卸载（从备份恢复）
-└── screenshots/             # 实测截图
-    ├── browse-zh.png        # 中文主界面
-    ├── browse-en.png        # 英文主界面
-    ├── editing-zh.png       # 编辑模式（斜体 tab + 未保存圆点）
-    ├── panetabs-zh.png      # 侧边栏 pane-tab 中文
-    ├── admin-zh.png         # admin 分组中文
-    └── lang-dropdown.png    # 8 语言下拉
+│   ├── install.sh           # install (backup + copy + patch, idempotent)
+│   └── uninstall.sh         # uninstall (restore from backup)
+└── screenshots/             # proof-of-work screenshots
+    ├── browse-zh.png        # Chinese UI (sidebar tabs / page content)
+    ├── browse-en.png        # English UI
+    ├── editing-zh.png       # edit mode (italic tab + unsaved dot)
+    ├── panetabs-zh.png      # sidebar pane tabs translated
+    ├── admin-zh.png         # admin pane groups translated
+    └── lang-dropdown.png    # 8-language picker
 ```
 
-## 兼容性与设计说明
+![Editing mode — italic tab name + unsaved dot](screenshots/editing-zh.png)
 
-- **为什么用"锚点"而不是 diff**：锚点 = 源码中稳定的原始行，上游小改动不影响
-  安装；找不到锚点时脚本明确报错，绝不装错位置。
-- **Tier 2 整体替换的文件**（`core/replace/`，44 个）：同时包含插件接线、
-  R10 全量 i18n 模块改动（admin/chat/list/toc/... 与 index.php 的 309 处 data-i18n）和少量
-  bug 修复——这些改动与上游 .41 的差异 100% 是 i18n 字符串（已验证：每个文件与 .41 的
-  diff 中无非 i18n 行），故提供完整文件（基于 v2026.7.40）不会丢失上游功能。
-  如果 wiki 之后升级上游，重新执行 `install.sh` 即可（备份目录固定，会重新备份最新上游）。
-- **移除插件**：卸载脚本 + 源码中所有 `=== local plugins ===` 标记块可整体
-  删除，详见每个插件头部注释。
+## Compatibility notes
 
-## 验证安装
+- **Why anchors instead of diff**: anchors are stable original lines in upstream
+  source; small upstream changes don't break the install, missing anchors are
+  reported explicitly, never silently misplaced.
+- **Tier 2 whole-file replacements** (`core/replace/`, 44 files): combine plugin
+  wiring, R10 full-i18n module changes (admin/chat/list/toc + 309 `data-i18n` sites
+  in `index.php`) and small bug fixes. We verified every one of these files vs
+  pristine .41: the only differences are i18n strings (zero non-i18n lines), so
+  shipping them whole cannot lose upstream functionality. If you upgrade upstream,
+  just re-run `install.sh` (the fixed backup directory will be refreshed).
+- **Removing the plugins**: `uninstall.sh` + deleting all `=== local plugins ===`
+  marker blocks cleanly undoes everything. See the per-plugin header comments for
+  the manual removal recipe.
 
-装完后在 wiki 里：
-1. 文件树单击任意文件 → 顶部出现标签页（预览标签，名称正常非斜体）
-2. 点击编辑按钮 → 当前标签名变斜体；输入内容 → 出现圆点（未保存）
-3. 切到另一个文件再切回 → 编辑内容 / 光标 / 滚动位置保持
-4. 右键文件 → 菜单含"在新标签页打开 / 复制 / 移动 / 重命名 / Backlinks / 删除 / 在文件管理器中显示"
-5. 右键标签栏空白处 → 可编辑侧边栏标签顺序
-6. 切换顶部语言下拉 → 侧边栏标签（目录树/搜索/最近访问）、搜索框、TOC 标题、
-   管理员面板分组（用户/AI/监控/内容）等全部即时翻译
-7. 任何写操作后 → `LOG_DIR/yyyy-mm-dd_access.log` 出现对应事件行
+![English UI](screenshots/browse-en.png)
 
-如果 2–3 步异常，多半是浏览器缓存，强制刷新后重试。
+## Verify the install
 
-![编辑模式：tab 名称斜体 + 未保存圆点](screenshots/editing-zh.png)
+After install, in the wiki:
+1. Click any file in the tree → a tab appears at the top (preview tab, normal name)
+2. Click Edit → the active tab name becomes italic; type → a dot appears (unsaved)
+3. Switch to another file and switch back → edit content / cursor / scroll kept
+4. Right-click a file → menu includes "Open in new tab / Duplicate / Move / Rename / Backlinks / Delete / Reveal in file manager"
+5. Right-click the sidebar tab bar → reorder pane tabs
+6. Switch the language picker → sidebar tabs (Pages / Search / Recent), search box,
+   TOC title, admin pane groups all translate instantly
+7. After any write operation → `LOG_DIR/yyyy-mm-dd_access.log` shows the corresponding event line
+
+If step 2–3 misbehave, it's usually browser cache — force-reload and retry.
